@@ -3,6 +3,7 @@
 #include <queue>
 #include <deque>
 #include <algorithm>
+#include <fstream>
 
 using namespace std;
 
@@ -303,6 +304,56 @@ public:
 		cout << "À gauche: " << feuille->gauche->data << " À droite: " << feuille->droit->data << endl;
 		cout << endl;
 	}
+
+	void lireFichier()
+	{
+		ifstream fichier;
+		char operation; //Operation dans le fichier
+		int chiffre;	//Chiffre qui suit l'operation s'il y a lieu
+
+		fichier.open("instructions.txt");
+
+		if (fichier.fail())
+			cout << "Impossible d'ouvrir le fichier";
+
+		while (!fichier.eof()) {
+			fichier >> operation;
+			//fichier.ignore(1, '\n');
+
+			switch (operation) {
+			case 'I':
+				fichier >> chiffre;
+				Insert(chiffre, root);
+				break;
+			case 'D':
+				fichier >> chiffre;
+				Delete(root, chiffre);
+				break;
+			case 'N':
+				fichier >> chiffre;
+				afficherNiveau(chiffre, root);
+				break;
+			case 'P':
+				Imprimer_decroissant(root);
+				break;
+			case 'H':
+				Print_height(root);
+				break;
+			case 'A':
+				fichier >> chiffre;
+				Print_Ancetres(root, chiffre);
+				break;
+			case 'C':
+				fichier >> chiffre;
+				Print_childrens(root, chiffre);
+				break;
+			default:
+				cout << "Il ne reste aucune instruction a executer" << endl;
+				break;
+			}
+		}
+		fichier.close();
+	}
 };
 
 
@@ -310,7 +361,7 @@ int main()
 {
 	BST arbre();
 
-
+	arbre().lireFichier();
 	
 	system("pause");
 }
