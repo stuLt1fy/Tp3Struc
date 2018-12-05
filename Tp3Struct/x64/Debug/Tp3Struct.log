@@ -1,3 +1,2 @@
 ﻿  Source.cpp
-c:\users\emile\desktop\tp3struct\source.cpp(311): warning C4930: 'BST arbre(void)': prototyped function not called (was a variable definition intended?)
-  Tp3Struct.vcxproj -> C:\Users\Emile\Desktop\Tp3Struct\x64\Debug\Tp3Struct.exe
+c:\users\emile\desktop\tp3struct\source.cpp(304): error C4703: potentially uninitialized local pointer variable 'feuille' used
