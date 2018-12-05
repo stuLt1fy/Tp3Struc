@@ -301,8 +301,29 @@ public:
 			case 'N':
 				fichier >> chiffre;
 				afficherNiveau(chiffre, root);
+				break;
+			case 'P':
+				Imprimer_decroissant(root);
+				break;
+			case 'H':
+				Print_height(root);
+				break;
+			case 'A':
+				fichier >> chiffre;
+				Print_Ancetres(root, chiffre);
+				break;
+			case 'C':
+				fichier >> chiffre;
+				Print_childrens(root, chiffre);
+				break;
+			default:
+				cout << "Il ne reste aucune instruction a executer" << endl;
+				break;
 			}
+
+
 		}
+		fichier.close();
 	}
 };
 
