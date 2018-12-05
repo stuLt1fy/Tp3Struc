@@ -2,6 +2,7 @@
 #include <stack>
 #include <queue>
 #include <deque>
+#include <fstream>
 
 using namespace std;
 
@@ -27,7 +28,7 @@ public:
 	~BST()				// Supprime l’espace mémoire occupé par l’arbre.
 	{
 	};
-	void Insert(int d, Node *feuille, int niveauSpec = 1)						// insérer l’élément de valeur d dans l’arbre.
+	void Insert(int d, Node *feuille)						// insérer l’élément de valeur d dans l’arbre.
 	{
 		if (root == NULL)														//S'il n'y a aucun element dans le BST, on le met dans la racine.
 		{
@@ -41,7 +42,7 @@ public:
 			if (d < feuille->data)												//Si d < que la feuille, alors on va dans le sous-arbre gauche
 			{
 				if (feuille->gauche != NULL)									//On va chercher le dernier élément du BST pour aller insérer notre donnée
-					Insert(d, feuille->gauche, niveauSpec + 1);
+					Insert(d, feuille->gauche);
 				else															//Lorsqu'on y est, on insere la donnee et on mets ses sous-branches a NULL
 				{
 					feuille->gauche = new Node;
@@ -55,7 +56,7 @@ public:
 			{
 				if (feuille->droit != NULL)
 				{
-					Insert(d, feuille->droit, niveauSpec + 1);
+					Insert(d, feuille->droit);
 				}
 				else
 				{
@@ -66,11 +67,6 @@ public:
 				}
 			}
 		}
-		if (niveauSpec > niveau)					//niveauSpec est le niveau speculatif dans lors de l'insertion (il varie avec chaque feuille qu'on parcour
-		{
-			niveau = niveauSpec;
-		}
-	
 	};
 
 	void afficherNiveau(int i, Node *feuille)									// Affiche le contenu de la file qui contient le niveau i.
@@ -178,24 +174,37 @@ public:
 		{
 			
 			plusGrandEnfantGauche = suppNode->gauche;
-			while (plusGrandEnfantGauche->droit != NULL)
-			{
-				plusGrandEnfantGauche = plusGrandEnfantGauche->droit;			
-				if (plusGrandEnfantGauche->droit->droit == NULL)				//Trouve le parent du plusGrandEnfantGauche
+			if (plusGrandEnfantGauche->droit != NULL)
+			{		
+				while (plusGrandEnfantGauche->droit != NULL)
 				{
-					plusGrandEnfantGaucheParent = plusGrandEnfantGauche;
+					if (plusGrandEnfantGauche->droit->droit == NULL)				//Trouve le parent du plusGrandEnfantGauche
+					{
+						plusGrandEnfantGaucheParent = plusGrandEnfantGauche;
+					}
+					plusGrandEnfantGauche = plusGrandEnfantGauche->droit;
 				}
+
+				suppNode->data = plusGrandEnfantGauche->data;	//Remplace la node a supprimer par le plusGrandEnfantGauche
+
+				if (plusGrandEnfantGauche->gauche != NULL)							//Si le plusGrandEnfantGauche a un node a sa gauche, alors on refait le lien entre le parent et l'enfant de plusGrandEnfantGauche
+				{
+					plusGrandEnfantGaucheParent->droit = plusGrandEnfantGauche->gauche;
+					plusGrandEnfantGauche->gauche = NULL;
+				}
+				delete plusGrandEnfantGauche;
 			}
 
-			suppNode->data = plusGrandEnfantGauche->data;						//Remplace la node a supprimer par le plusGrandEnfantGauche
-
-			if (plusGrandEnfantGauche->gauche != NULL)							//Si le plusGrandEnfantGauche a un node a sa gauche, alors on refait le lien entre le parent et l'enfant de plusGrandEnfantGauche
+			else
 			{
-				plusGrandEnfantGaucheParent->droit = plusGrandEnfantGauche->gauche;
+				suppNode->data = plusGrandEnfantGauche->data;
+				suppNode->gauche = plusGrandEnfantGauche->gauche;
 				plusGrandEnfantGauche->gauche = NULL;
 				delete plusGrandEnfantGauche;
 			}
 		}
+
+			
 	}
 		
 	Node* getRoot()
@@ -203,6 +212,7 @@ public:
 		return root;
 	}
 
+	//Recherche à partir de la feuille donnée (root habituellement), l'int d, et mets toutes les feuilles rencontrées dans la pile (accès au parent).
 	void recherche(Node *feuille, int d, stack<Node*> &pile)
 	{
 		if (feuille == NULL)
@@ -230,8 +240,70 @@ public:
 
 	void Imprimer_croissant(Node *root);		// Affiche les éléments de l’arbre dans l’ordre décroissant.
 	int Print_height(Node *root);				// Affiche la hauteur de l’arbre. 
-	void Print_Ancetres(Node *root, int d);		// Affiche les ascendants de l’élément de valeur d (bonus 10pts)
-	void Print_childrens(Node *root, int d);	// Affiche les descendants de l’élément de valeur d
+	void Print_Ancetres(Node *root, int d)		// Affiche les ascendants de l’élément de valeur d (bonus 10pts)
+	{
+		stack<Node*> pile;
+		recherche(root, d, pile);
+
+		if (!pile.empty())
+		{
+			pile.pop();	//Enleve l'element d.
+		}
+		cout << "Anscendants (en partant du parent de d et en remontant l'arbre) de l'element d: ";
+		while (!pile.empty())
+		{
+			cout << pile.top() << " ";
+			pile.pop();
+		}
+		cout << endl << endl;
+	}
+	void Print_childrens(Node *root, int d)		// Affiche les descendants de l’élément de valeur d
+	{
+		stack<Node*> pile;
+		Node *feuille;
+		recherche(root, d, pile);
+		if (!pile.empty())
+		{
+			feuille = pile.top();
+		}
+
+		cout << "Les enfants de " << d << " sont:" << endl;
+		cout << "À gauche: " << feuille->gauche->data << " À droite: " << feuille->droit->data << endl;
+		cout << endl;
+	}
+
+	void lireFichier()
+	{
+		ifstream fichier;
+		char operation; //Operation dans le fichier
+		int chiffre;	//Chiffre qui suit l'operation s'il y a lieu
+
+		fichier.open("instructions.txt");
+
+		if (fichier.fail())
+			cout << "Impossible d'ouvrir le fichier";
+
+		while (!fichier.eof())
+		{
+			fichier >> operation;
+			//fichier.ignore(1, '\n');
+
+			switch (operation)
+			{
+			case 'I':
+				fichier >> chiffre;
+				Insert(chiffre, root);
+				break;
+			case 'D':
+				fichier >> chiffre;
+				Delete(root, chiffre);
+				break;
+			case 'N':
+				fichier >> chiffre;
+				afficherNiveau(chiffre, root);
+			}
+		}
+	}
 };
 
 
