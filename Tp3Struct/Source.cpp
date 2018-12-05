@@ -2,7 +2,7 @@
 #include <stack>
 #include <queue>
 #include <deque>
-#include <fstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -14,10 +14,10 @@ struct Node {
 
 class BST {
 private:
-	Node * root;  // La racine l’arbre BST
+	Node * root;  // La racine lâ€™arbre BST
 	int niveau;
 public:
-	BST(int d)						// Construit l’arbre dont la racine contient la donnée d.
+	BST(int d)						// Construit lâ€™arbre dont la racine contient la donnÃ©e d.
 	{
 		root = new Node;
 		root->data = d;
@@ -25,10 +25,10 @@ public:
 		root->droit = NULL;
 		niveau = 0;
 	};
-	~BST()				// Supprime l’espace mémoire occupé par l’arbre.
+	~BST()				// Supprime lâ€™espace mÃ©moire occupÃ© par lâ€™arbre.
 	{
 	};
-	void Insert(int d, Node *feuille)						// insérer l’élément de valeur d dans l’arbre.
+	void Insert(int d, Node *feuille, int niveauSpec = 1)						// insÃ©rer lâ€™Ã©lÃ©ment de valeur d dans lâ€™arbre.
 	{
 		if (root == NULL)														//S'il n'y a aucun element dans le BST, on le met dans la racine.
 		{
@@ -41,8 +41,8 @@ public:
 		{
 			if (d < feuille->data)												//Si d < que la feuille, alors on va dans le sous-arbre gauche
 			{
-				if (feuille->gauche != NULL)									//On va chercher le dernier élément du BST pour aller insérer notre donnée
-					Insert(d, feuille->gauche);
+				if (feuille->gauche != NULL)									//On va chercher le dernier Ã©lÃ©ment du BST pour aller insÃ©rer notre donnÃ©e
+					Insert(d, feuille->gauche, niveauSpec + 1);
 				else															//Lorsqu'on y est, on insere la donnee et on mets ses sous-branches a NULL
 				{
 					feuille->gauche = new Node;
@@ -56,7 +56,7 @@ public:
 			{
 				if (feuille->droit != NULL)
 				{
-					Insert(d, feuille->droit);
+					Insert(d, feuille->droit, niveauSpec + 1);
 				}
 				else
 				{
@@ -67,6 +67,11 @@ public:
 				}
 			}
 		}
+		if (niveauSpec > niveau)					//niveauSpec est le niveau speculatif dans lors de l'insertion (il varie avec chaque feuille qu'on parcour
+		{
+			niveau = niveauSpec;
+		}
+
 	};
 
 	void afficherNiveau(int i, Node *feuille)									// Affiche le contenu de la file qui contient le niveau i.
@@ -80,7 +85,7 @@ public:
 		}
 	}
 
-	void Niveau(int i, Node *feuille, queue<int> &file)							// Trouve les éléments de niveau i.
+	void Niveau(int i, Node *feuille, queue<int> &file)							// Trouve les Ã©lÃ©ments de niveau i.
 	{
 		file;
 		if (i == 0)
@@ -98,45 +103,40 @@ public:
 			Niveau(i - 1, feuille->droit, file);
 		}
 	}
-	void Delete(Node *feuille, int d)				// Supprime l’élément de valeur d de l’arbre.
+
+	void Delete(Node *feuille, int d)				// Supprime lâ€™Ã©lÃ©ment de valeur d de lâ€™arbre.
 	{
 		Node *suppNode = NULL;
 		Node *suppNodeParent = NULL;
 		Node *plusGrandEnfantGauche = NULL;
 		Node *plusGrandEnfantGaucheParent = NULL;
 		stack<Node*> pile;
-		if (root == NULL)
-		{
+		if (root == NULL) {
 			cout << "Arbre vide" << endl;
 		}
 
 		recherche(root, d, pile);
 
-		if (!pile.empty())
-		{
+		if (!pile.empty()) {
 			suppNode = pile.top();
 			pile.pop();
 		}
-		if (!pile.empty())
-		{
+		if (!pile.empty()) {
 			suppNodeParent = pile.top();
 			pile.pop();
 		}
 
-		if (suppNode == NULL)
-		{
+		if (suppNode == NULL) {
 			cout << "item n'est pas dans l'arbre (fonction Delete)" << endl;
 		}
 
 		if (suppNode->gauche == NULL && suppNode->droit == NULL)		//Cas 1, le noeud a supprimer est une feuille
 		{
-			if (suppNode->data >= suppNodeParent->data)
-			{
+			if (suppNode->data >= suppNodeParent->data) {
 				delete suppNode;
 				suppNodeParent->droit = NULL;
 			}
-			else
-			{
+			else {
 				delete suppNode;
 				suppNodeParent->gauche = NULL;
 			}
@@ -144,12 +144,10 @@ public:
 
 		else if ((suppNode->droit == NULL && suppNode->gauche != NULL))		//Cas 2.1, le noeud n'a qu'un seul enfant (gauche)
 		{
-			if (suppNode->data >= suppNodeParent->data)
-			{
+			if (suppNode->data >= suppNodeParent->data) {
 				suppNodeParent->droit = suppNode->gauche;
 			}
-			else
-			{
+			else {
 				suppNodeParent->gauche = suppNode->gauche;
 			}
 			suppNode->gauche = NULL;
@@ -158,12 +156,10 @@ public:
 
 		else if (suppNode->droit != NULL && suppNode->gauche == NULL)		//Cas 2.2, le noeud n'a qu'un seul enfant (droit)
 		{
-			if (suppNode->data >= suppNodeParent->data)
-			{
+			if (suppNode->data >= suppNodeParent->data) {
 				suppNodeParent->droit = suppNode->droit;
 			}
-			else
-			{
+			else {
 				suppNodeParent->gauche = suppNode->droit;
 			}
 			suppNode->droit = NULL;
@@ -172,12 +168,10 @@ public:
 
 		else if (suppNode->droit != NULL && suppNode->gauche != NULL)		//Cas 3, le noeud a 2 enfants
 		{
-			
+
 			plusGrandEnfantGauche = suppNode->gauche;
-			if (plusGrandEnfantGauche->droit != NULL)
-			{		
-				while (plusGrandEnfantGauche->droit != NULL)
-				{
+			if (plusGrandEnfantGauche->droit != NULL) {
+				while (plusGrandEnfantGauche->droit != NULL) {
 					if (plusGrandEnfantGauche->droit->droit == NULL)				//Trouve le parent du plusGrandEnfantGauche
 					{
 						plusGrandEnfantGaucheParent = plusGrandEnfantGauche;
@@ -195,8 +189,7 @@ public:
 				delete plusGrandEnfantGauche;
 			}
 
-			else
-			{
+			else {
 				suppNode->data = plusGrandEnfantGauche->data;
 				suppNode->gauche = plusGrandEnfantGauche->gauche;
 				plusGrandEnfantGauche->gauche = NULL;
@@ -204,7 +197,7 @@ public:
 			}
 		}
 
-			
+
 	}
 		
 	Node* getRoot()
@@ -212,7 +205,6 @@ public:
 		return root;
 	}
 
-	//Recherche à partir de la feuille donnée (root habituellement), l'int d, et mets toutes les feuilles rencontrées dans la pile (accès au parent).
 	void recherche(Node *feuille, int d, stack<Node*> &pile)
 	{
 		if (feuille == NULL)
@@ -238,37 +230,62 @@ public:
 
 	}
 
-	void Imprimer_croissant(Node *root);		// Affiche les éléments de l’arbre dans l’ordre décroissant.
-	int Print_height(Node *root);				// Affiche la hauteur de l’arbre. 
-	void Print_Ancetres(Node *root, int d)		// Affiche les ascendants de l’élément de valeur d (bonus 10pts)
+	void Imprimer_decroissant(Node* feuille)	// Affiche les Ã©lÃ©ments de lâ€™arbre dans lâ€™ordre dÃ©croissant.
+	{
+		if (feuille != NULL) {
+			if (feuille->droit) {
+				Imprimer_decroissant(feuille->droit);
+			}
+			cout << feuille->data << " ";
+			if (feuille->gauche) {
+				Imprimer_decroissant(feuille->gauche);
+			}
+		}
+		else {
+			cout << "L'arbre est vide.\n";
+		}
+	}
+
+	int Print_height(Node *feuille)				// Affiche la hauteur de lâ€™arbre. 
+	{
+		if (feuille == NULL) 
+		{
+			return -1;
+		}
+
+		int gauche = Print_height(feuille->gauche);
+		int droite = Print_height(feuille->droit);
+
+		return max(gauche, droite) + 1; 
+	}
+
+	void Print_Ancetres(Node *root, int d)		// Affiche les ascendants de lâ€™Ã©lÃ©ment de valeur d (bonus 10pts)
 	{
 		stack<Node*> pile;
 		recherche(root, d, pile);
 
-		if (!pile.empty())
-		{
+		if (!pile.empty()) {
 			pile.pop();	//Enleve l'element d.
 		}
 		cout << "Anscendants (en partant du parent de d et en remontant l'arbre) de l'element d: ";
-		while (!pile.empty())
-		{
+		while (!pile.empty()) {
 			cout << pile.top() << " ";
 			pile.pop();
 		}
 		cout << endl << endl;
 	}
-	void Print_childrens(Node *root, int d)		// Affiche les descendants de l’élément de valeur d
+
+	void Print_childrens(Node *root, int d)		// Affiche les descendants de lâ€™Ã©lÃ©ment de valeur d
 	{
 		stack<Node*> pile;
 		Node *feuille;
 		recherche(root, d, pile);
-		if (!pile.empty())
-		{
+		if (!pile.empty()) {
 			feuille = pile.top();
 		}
 
 		cout << "Les enfants de " << d << " sont:" << endl;
-		cout << "À gauche: " << feuille->gauche->data << " À droite: " << feuille->droit->data << endl;
+		cout << "Ã€ gauche: " << feuille->gauche->data << " Ã€ droite: " << feuille->droit->data << endl;
 		cout << endl;
 	}
 
@@ -331,11 +348,22 @@ public:
 int main()
 {
 	BST arbre(10);
-	arbre.Insert(5, arbre.getRoot());
-	arbre.Insert(15, arbre.getRoot());
+	arbre.Insert(16, arbre.getRoot());
+	arbre.Insert(31, arbre.getRoot());
+	arbre.Insert(24, arbre.getRoot());
+	arbre.Insert(7, arbre.getRoot());
+	arbre.Insert(19, arbre.getRoot());
+	arbre.Insert(29, arbre.getRoot());
+	arbre.Insert(52, arbre.getRoot());
+
 	arbre.Delete(arbre.getRoot(), 10);
 
 	arbre.afficherNiveau(0, arbre.getRoot());
+	cout << endl;
+	arbre.Imprimer_decroissant(arbre.getRoot());
+	cout << endl;
+	int hauteur = arbre.Print_height(arbre.getRoot());
+	cout << hauteur;
 
 	system("pause");
 }
