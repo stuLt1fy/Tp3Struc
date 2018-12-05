@@ -28,29 +28,30 @@ public:
 
 	~BST()				// Supprime l’espace mémoire occupé par l’arbre.
 	{
-		DeleteBST(getRoot());
+		DeleteBST(root);
 	};
 
 	void DeleteBST(Node* feuille)
 	{
 		if (feuille != NULL) {
-			if (feuille->droit) {
+			if (feuille->droit != NULL) {
 				DeleteBST(feuille->droit);
 			}
-			if (feuille->gauche) {
+
+			if (feuille->gauche != NULL) {
 				DeleteBST(feuille->gauche);
 			}
+			feuille->data = 0;
+			feuille->droit = NULL;
+			feuille->gauche = NULL;
 			feuille = NULL;
 			delete feuille;
 		}
-		else {
-			cout << "L'arbre est déjà vide.\n";
-		}
-	}
+	};
 
-	void Insert(int d, Node *feuille, int niveauSpec = 1)						// insérer l’élément de valeur d dans l’arbre.
+	void Insert(int d, Node *feuille)	// insérer l’élément de valeur d dans l’arbre.
 	{
-		if (root == NULL)														//S'il n'y a aucun element dans le BST, on le met dans la racine.
+		if (root == NULL)				//S'il n'y a aucun element dans le BST, on le met dans la racine.
 		{
 			root = new Node;
 			root->data = d;
@@ -62,7 +63,7 @@ public:
 			if (d < feuille->data)												//Si d < que la feuille, alors on va dans le sous-arbre gauche
 			{
 				if (feuille->gauche != NULL)									//On va chercher le dernier élément du BST pour aller insérer notre donnée
-					Insert(d, feuille->gauche, niveauSpec + 1);
+					Insert(d, feuille->gauche);
 				else															//Lorsqu'on y est, on insere la donnee et on mets ses sous-branches a NULL
 				{
 					feuille->gauche = new Node;
@@ -76,7 +77,7 @@ public:
 			{
 				if (feuille->droit != NULL)
 				{
-					Insert(d, feuille->droit, niveauSpec + 1);
+					Insert(d, feuille->droit);
 				}
 				else
 				{
@@ -87,11 +88,6 @@ public:
 				}
 			}
 		}
-		if (niveauSpec > niveau)					//niveauSpec est le niveau speculatif dans lors de l'insertion (il varie avec chaque feuille qu'on parcour
-		{
-			niveau = niveauSpec;
-		}
-
 	};
 
 	void afficherNiveau(int i, Node *feuille)									// Affiche le contenu de la file qui contient le niveau i.
@@ -252,11 +248,11 @@ public:
 	void Imprimer_decroissant(Node* feuille)			// Affiche les éléments de l’arbre dans l’ordre décroissant.
 	{
 		if (feuille != NULL) {
-			if (feuille->droit) {						
+			if (feuille->droit != NULL) {						
 				Imprimer_decroissant(feuille->droit);
 			}
 			cout << feuille->data << " ";
-			if (feuille->gauche) {
+			if (feuille->gauche != NULL) {
 				Imprimer_decroissant(feuille->gauche);
 			}
 		}
@@ -312,23 +308,9 @@ public:
 
 int main()
 {
-	BST arbre(10);
-	arbre.Insert(16, arbre.getRoot());
-	arbre.Insert(31, arbre.getRoot());
-	arbre.Insert(24, arbre.getRoot());
-	arbre.Insert(7, arbre.getRoot());
-	arbre.Insert(19, arbre.getRoot());
-	arbre.Insert(29, arbre.getRoot());
-	arbre.Insert(52, arbre.getRoot());
+	BST arbre();
 
-	arbre.Delete(arbre.getRoot(), 10);
 
-	arbre.afficherNiveau(0, arbre.getRoot());
-	cout << endl;
-	arbre.Imprimer_decroissant(arbre.getRoot());
-	cout << endl;
-	int hauteur = arbre.Print_height(arbre.getRoot());
-	cout << hauteur;
-
+	
 	system("pause");
 }
