@@ -14,10 +14,10 @@ struct Node {
 
 class BST {
 private:
-	Node * root;  // La racine l’arbre BST
+	Node * root;  // La racine lâ€™arbre BST
 	int niveau;
 public:
-	BST(int d)						// Construit l’arbre dont la racine contient la donnée d.
+	BST(int d)						// Construit lâ€™arbre dont la racine contient la donnÃ©e d.
 	{
 		root = new Node;
 		root->data = d;
@@ -25,10 +25,10 @@ public:
 		root->droit = NULL;
 		niveau = 0;
 	};
-	~BST()				// Supprime l’espace mémoire occupé par l’arbre.
+	~BST()				// Supprime lâ€™espace mÃ©moire occupÃ© par lâ€™arbre.
 	{
 	};
-	void Insert(int d, Node *feuille, int niveauSpec = 1)						// insérer l’élément de valeur d dans l’arbre.
+	void Insert(int d, Node *feuille, int niveauSpec = 1)						// insÃ©rer lâ€™Ã©lÃ©ment de valeur d dans lâ€™arbre.
 	{
 		if (root == NULL)														//S'il n'y a aucun element dans le BST, on le met dans la racine.
 		{
@@ -41,7 +41,7 @@ public:
 		{
 			if (d < feuille->data)												//Si d < que la feuille, alors on va dans le sous-arbre gauche
 			{
-				if (feuille->gauche != NULL)									//On va chercher le dernier élément du BST pour aller insérer notre donnée
+				if (feuille->gauche != NULL)									//On va chercher le dernier Ã©lÃ©ment du BST pour aller insÃ©rer notre donnÃ©e
 					Insert(d, feuille->gauche, niveauSpec + 1);
 				else															//Lorsqu'on y est, on insere la donnee et on mets ses sous-branches a NULL
 				{
@@ -85,7 +85,7 @@ public:
 		}
 	}
 
-	void Niveau(int i, Node *feuille, queue<int> &file)							// Trouve les éléments de niveau i.
+	void Niveau(int i, Node *feuille, queue<int> &file)							// Trouve les Ã©lÃ©ments de niveau i.
 	{
 		file;
 		if (i == 0)
@@ -104,7 +104,7 @@ public:
 		}
 	}
 
-	void Delete(Node *feuille, int d)				// Supprime l’élément de valeur d de l’arbre.
+	void Delete(Node *feuille, int d)				// Supprime lâ€™Ã©lÃ©ment de valeur d de lâ€™arbre.
 	{
 		Node *suppNode = NULL;
 		Node *suppNodeParent = NULL;
@@ -230,7 +230,7 @@ public:
 
 	}
 
-	void Imprimer_decroissant(Node* feuille)	// Affiche les éléments de l’arbre dans l’ordre décroissant.
+	void Imprimer_decroissant(Node* feuille)	// Affiche les Ã©lÃ©ments de lâ€™arbre dans lâ€™ordre dÃ©croissant.
 	{
 		if (feuille != NULL) {
 			if (feuille->droit) {
@@ -246,7 +246,7 @@ public:
 		}
 	}
 
-	int Print_height(Node *feuille)				// Affiche la hauteur de l’arbre. 
+	int Print_height(Node *feuille)				// Affiche la hauteur de lâ€™arbre. 
 	{
 		if (feuille == NULL) 
 		{
@@ -259,7 +259,7 @@ public:
 		return max(gauche, droite) + 1; 
 	}
 
-	void Print_Ancetres(Node *root, int d)		// Affiche les ascendants de l’élément de valeur d (bonus 10pts)
+	void Print_Ancetres(Node *root, int d)		// Affiche les ascendants de lâ€™Ã©lÃ©ment de valeur d (bonus 10pts)
 	{
 		stack<Node*> pile;
 		recherche(root, d, pile);
@@ -275,7 +275,7 @@ public:
 		cout << endl << endl;
 	}
 
-	void Print_childrens(Node *root, int d)		// Affiche les descendants de l’élément de valeur d
+	void Print_childrens(Node *root, int d)		// Affiche les descendants de lâ€™Ã©lÃ©ment de valeur d
 	{
 		stack<Node*> pile;
 		Node *feuille;
@@ -285,8 +285,62 @@ public:
 		}
 
 		cout << "Les enfants de " << d << " sont:" << endl;
-		cout << "À gauche: " << feuille->gauche->data << " À droite: " << feuille->droit->data << endl;
+		cout << "Ã€ gauche: " << feuille->gauche->data << " Ã€ droite: " << feuille->droit->data << endl;
 		cout << endl;
+	}
+
+	void lireFichier()
+	{
+		ifstream fichier;
+		char operation; //Operation dans le fichier
+		int chiffre;	//Chiffre qui suit l'operation s'il y a lieu
+
+		fichier.open("instructions.txt");
+
+		if (fichier.fail())
+			cout << "Impossible d'ouvrir le fichier";
+
+		while (!fichier.eof())
+		{
+			fichier >> operation;
+			//fichier.ignore(1, '\n');
+
+			switch (operation)
+			{
+			case 'I':
+				fichier >> chiffre;
+				Insert(chiffre, root);
+				break;
+			case 'D':
+				fichier >> chiffre;
+				Delete(root, chiffre);
+				break;
+			case 'N':
+				fichier >> chiffre;
+				afficherNiveau(chiffre, root);
+				break;
+			case 'P':
+				Imprimer_decroissant(root);
+				break;
+			case 'H':
+				Print_height(root);
+				break;
+			case 'A':
+				fichier >> chiffre;
+				Print_Ancetres(root, chiffre);
+				break;
+			case 'C':
+				fichier >> chiffre;
+				Print_childrens(root, chiffre);
+				break;
+			default:
+				cout << "Il ne reste aucune instruction a executer" << endl;
+				break;
+			}
+
+
+		}
+		fichier.close();
 	}
 };
 
