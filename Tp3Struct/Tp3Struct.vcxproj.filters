@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="TP3structure.cpp">
+    <ClCompile Include="TP3structureEmile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
